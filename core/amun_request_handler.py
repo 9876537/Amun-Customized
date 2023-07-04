@@ -223,7 +223,10 @@ class amun_reqhandler(asynchat.async_chat):
 
 		if len(welcome_list)>0:
 			self.log_obj.log("sending welcome message: %s" % ([welcome_list[0]]), 6, "crit", False, False)
-			rplmess = "%s\r\n" % (welcome_list[0])
+			if welcome_list[0].endswith('System32>'):
+				rplmess = "%s" % (welcome_list[0])
+			else:
+				rplmess = "%s\r\n" % (welcome_list[0])
 			try:
 				bytesTosend = len(rplmess)
 				while bytesTosend>0:
@@ -634,6 +637,8 @@ class amun_reqhandler(asynchat.async_chat):
 							rplmess = "%s" % (vulnResult['reply'])
 						if vulnResult['reply'].endswith('*'):
 							rplmess = "%s" % (vulnResult['reply'][:-1])
+						if vulnResult['reply'].endswith('System32>'):
+							rplmess = "%s" % (vulnResult['reply'])
 						else:
 							rplmess = "%s\r\n" % (vulnResult['reply'])
 						if rplmess not in result['replies']:

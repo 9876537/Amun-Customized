@@ -27,7 +27,7 @@ import StringIO
 import sys
 
 ### Module for testing new vulnerability modules / port_watcher
-### Simulate Solaris Telnet without password
+### Simulate Windows Telnet without password
 
 class vuln:
 
@@ -35,8 +35,14 @@ class vuln:
 		try:
 			self.vuln_name = "CHECK Vulnerability"
 			self.stage = "CHECK_STAGE1"
-			self.welcome_message = ""
 			self.shellcode = []
+			os_id = random.randint(0, 1)
+			if os_id == 0:
+				self.welcome_message = "Microsoft Windows XP [Version 5.1.2600]\n(C) Copyright 1985-2001 Microsoft Corp.\n\nC:\\WINNT\\System32>"
+				self.prompt = "C:\\WINNT\\System32>"
+			else:
+				self.welcome_message = "Microsoft Windows 2000 [Version 5.00.2195]\n(C) Copyright 1985-2000 Microsoft Corp.\n\nC:\\WINDOWS\\System32>"
+				self.prompt = "C:\\WINDOWS\\System32>"
 		except KeyboardInterrupt:
 			raise
 
@@ -122,19 +128,19 @@ class vuln:
 				if message.rfind('USER')!=-1:
 					resultSet['result'] = True
 					resultSet['accept'] = True
-					resultSet['reply'] = "login without authentication\n\nsolaris#"
+					resultSet['reply'] = "login without authentication\n\n" + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
 				elif bytes==3:
 					resultSet['result'] = True
 					resultSet['accept'] = True
-					resultSet['reply'] = "login without authentication\n\nsolaris#"
+					resultSet['reply'] = "login without authentication\n\n" + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
 				elif message.rfind('quit')!=-1 or message.rfind('exit')!=-1 or message.rfind('QUIT')!=-1 or message.rfind('EXIT')!=-1:
 					resultSet['result'] = True
 					resultSet['accept'] = False
-					resultSet['reply'] = "command unknown\n\nsolaris#"
+					resultSet['reply'] = "command unknown\n\n" + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
 				else:
@@ -142,7 +148,7 @@ class vuln:
 						self.log_obj.log("CHECK (%s) Incoming: %s (Bytes: %s)" % (ip, message, bytes), 6, "debug", True, True)
 					resultSet['result'] = True
 					resultSet['accept'] = True
-					resultSet['reply'] = "command unknown\n\nsolaris#"
+					resultSet['reply'] = "command unknown\n\n" + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
 			elif self.stage=="SHELLCODE":
