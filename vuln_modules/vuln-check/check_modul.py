@@ -163,20 +163,20 @@ class vuln:
 				if message.startswith('ipconfig'):
 					resultSet['result'] = True
 					resultSet['accept'] = True
-					resultSet['reply'] = self.ipconfig(message, ownIP) + self.prompt
+					resultSet['reply'] = "%s%s" % (self.ipconfig(message, ownIP), self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
 				elif message.startswith('dir'):
 					resultSet['result'] = True
 					resultSet['accept'] = True
-					resultSet['reply'] = self.dir(message) + self.prompt
+					resultSet['reply'] = "%s%s" % (self.dir(message), self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
 
 				elif message.rfind('exit')!=-1 or message.rfind('EXIT')!=-1:
 					resultSet['result'] = True
 					resultSet['accept'] = False
-					resultSet['reply'] = "command unknown\n\n" + self.prompt
+					resultSet['reply'] = "\'%s\' is not recognized as an internal or external command, \noperable program or batch file.\n\n%s" % (message, self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
 				else:
@@ -184,7 +184,7 @@ class vuln:
 						self.log_obj.log("CHECK (%s) Incoming: %s (Bytes: %s)" % (ip, message, bytes), 6, "debug", True, True)
 					resultSet['result'] = True
 					resultSet['accept'] = True
-					resultSet['reply'] = "command unknown\n\n" + self.prompt
+					resultSet['reply'] = "\'%s\' is not recognized as an internal or external command, \noperable program or batch file.\n\n%s" % (message, self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
 			elif self.stage=="SHELLCODE":
