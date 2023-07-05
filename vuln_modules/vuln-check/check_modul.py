@@ -168,21 +168,19 @@ class vuln:
 					resultSet['reply'] = self.ipconfig(message, ownIP) + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
-				if message.startswith('dir'):
+				elif message.startswith('dir'):
 					resultSet['result'] = True
 					resultSet['accept'] = True
 					resultSet['reply'] = self.dir(message) + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
 
-
-				elif message.rfind('quit')!=-1 or message.rfind('exit')!=-1 or message.rfind('QUIT')!=-1 or message.rfind('EXIT')!=-1:
+				elif message.rfind('exit')!=-1 or message.rfind('EXIT')!=-1:
 					resultSet['result'] = True
 					resultSet['accept'] = False
 					resultSet['reply'] = "command unknown\n\n" + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
-
 				else:
 					if bytes>0:
 						self.log_obj.log("CHECK (%s) Incoming: %s (Bytes: %s)" % (ip, message, bytes), 6, "debug", True, True)
