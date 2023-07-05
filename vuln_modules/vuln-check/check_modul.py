@@ -114,6 +114,24 @@ class vuln:
 			pass
 		return reply
 
+	def dir(self, data):
+		""" emulate dir command """
+		randomNumber = random.randint(255,5100)
+		reply = ""
+		try:
+			if data=="dir":
+				reply = "\nVolume in drive C has no label\n"
+				reply+= "Volume Serial Number is %i-FAB8\n\n" % (randomNumber)
+				reply+= "Directory of %s\n\n" % (self.prompt.strip('>'))
+				reply+= "06/11/2007  05:01p    <DIR>\t\t.\n"
+				reply+= "06/11/2007  05:01p    <DIR>\t\t..\n"
+				reply+= "               0 File(s)\t\t0 bytes\n"
+				reply+= "               2 Dir(s)\t1,627,193,344 bytes free\n\n"
+				return reply
+		except:
+			pass
+		return reply
+
 	def incoming(self, message, bytes, ip, vuLogger, random_reply, ownIP):
 		try:
 			self.log_obj = amun_logging.amun_logging("vuln_check", vuLogger)
@@ -139,6 +157,8 @@ class vuln:
 				#self.log_obj.log("CHECK Incoming: %s (Bytes: %s)" % (message, bytes), 6, "debug", True, False)
 				#self.print_message(message)
 
+			# add cls command??? 
+		
 			message = message.strip()
 			if self.stage=="CHECK_STAGE1":
 				if message.startswith('ipconfig'):
@@ -147,7 +167,14 @@ class vuln:
 					resultSet['reply'] = self.ipconfig(message, ownIP) + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
-				
+				if message.startswith('dir'):
+					resultSet['result'] = True
+					resultSet['accept'] = True
+					resultSet['reply'] = self.dir(message) + self.prompt
+					self.stage="CHECK_STAGE1"
+					return resultSet
+
+
 				elif message.rfind('quit')!=-1 or message.rfind('exit')!=-1 or message.rfind('QUIT')!=-1 or message.rfind('EXIT')!=-1:
 					resultSet['result'] = True
 					resultSet['accept'] = False
