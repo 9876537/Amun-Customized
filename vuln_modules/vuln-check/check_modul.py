@@ -98,6 +98,22 @@ class vuln:
 	def getWelcomeMessage(self):
 		return self.welcome_message
 
+	def ipconfig(self, data, ownIP):
+		""" emulate ipconfig command """
+		reply = ""
+		try:
+			if data=="ipconfig":
+				reply = "\nWindows IP Configuration\n\n"
+				reply+= "Ethernet adapter Local Area Connection 3:\n\n"
+				reply+= "\tConnection-specific DNS Suffix  . :\n"
+				reply+= "\tIP Address. . . . . . . . . . . . : %s\n" % (ownIP)
+				reply+= "\tSubnet Mask . . . . . . . . . . . : 255.255.255.0\n"
+				reply+= "\tDefault Gateway . . . . . . . . . : %s\n\n" % (ownIP[:ownIP.rfind('.')]+".4")
+				return reply
+		except:
+			pass
+		return reply
+
 	def incoming(self, message, bytes, ip, vuLogger, random_reply, ownIP):
 		try:
 			self.log_obj = amun_logging.amun_logging("vuln_check", vuLogger)
@@ -119,30 +135,26 @@ class vuln:
 			resultSet['shellcode'] = "None"
 			resultSet["isFile"] = False
 
-			
 			#if bytes>0:
 				#self.log_obj.log("CHECK Incoming: %s (Bytes: %s)" % (message, bytes), 6, "debug", True, False)
 				#self.print_message(message)
 
+			message = message.strip()
 			if self.stage=="CHECK_STAGE1":
-				if message.rfind('USER')!=-1:
+				if message.startswith('ipconfig'):
 					resultSet['result'] = True
 					resultSet['accept'] = True
-					resultSet['reply'] = "login without authentication\n\n" + self.prompt
+					resultSet['reply'] = self.ipconfig(message, ownIP) + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
-				elif bytes==3:
-					resultSet['result'] = True
-					resultSet['accept'] = True
-					resultSet['reply'] = "login without authentication\n\n" + self.prompt
-					self.stage="CHECK_STAGE1"
-					return resultSet
+				
 				elif message.rfind('quit')!=-1 or message.rfind('exit')!=-1 or message.rfind('QUIT')!=-1 or message.rfind('EXIT')!=-1:
 					resultSet['result'] = True
 					resultSet['accept'] = False
 					resultSet['reply'] = "command unknown\n\n" + self.prompt
 					self.stage="CHECK_STAGE1"
 					return resultSet
+
 				else:
 					if bytes>0:
 						self.log_obj.log("CHECK (%s) Incoming: %s (Bytes: %s)" % (ip, message, bytes), 6, "debug", True, True)
