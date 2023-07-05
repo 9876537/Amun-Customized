@@ -21,13 +21,14 @@ import check_shellcodes
 import hashlib
 import os
 import amun_logging
+import shellemulator
 
 import traceback
 import StringIO
 import sys
 
 ### Module for testing new vulnerability modules / port_watcher
-### Simulate Windows Telnet without password
+### Call shellemulator to simulate Windows Telnet without password. 
 
 class vuln:
 
@@ -35,16 +36,10 @@ class vuln:
 		try:
 			self.vuln_name = "CHECK Vulnerability"
 			self.stage = "CHECK_STAGE1"
-			self.shellcode = []
-			self.randomNumber = random.randint(255,5100)
-			self.computerName = "DESKTOP-%i" % (self.randomNumber)
-			os_id = random.randint(0, 1)
-			if os_id == 0:
-				self.welcome_message = "Microsoft Windows XP [Version 5.1.2600]\n(C) Copyright 1985-2001 Microsoft Corp.\n\nC:\\WINNT\\System32>"
-				self.prompt = "C:\\WINNT\\System32>"
-			else:
-				self.welcome_message = "Microsoft Windows 2000 [Version 5.00.2195]\n(C) Copyright 1985-2000 Microsoft Corp.\n\nC:\\WINDOWS\\System32>"
-				self.prompt = "C:\\WINDOWS\\System32>"
+			self.welcome_message = ""
+			self.shellcode = []	
+			self.prompt_flag = True
+			self.prompt = ""	
 		except KeyboardInterrupt:
 			raise
 
@@ -100,38 +95,6 @@ class vuln:
 	def getWelcomeMessage(self):
 		return self.welcome_message
 
-	def ipconfig(self, data, ownIP):
-		""" emulate ipconfig command """
-		reply = ""
-		try:
-			if data=="ipconfig":
-				reply = "\nWindows IP Configuration\n\n"
-				reply+= "Ethernet adapter Local Area Connection 3:\n\n"
-				reply+= "\tConnection-specific DNS Suffix  . :\n"
-				reply+= "\tIP Address. . . . . . . . . . . . : %s\n" % (ownIP)
-				reply+= "\tSubnet Mask . . . . . . . . . . . : 255.255.255.0\n"
-				reply+= "\tDefault Gateway . . . . . . . . . : %s\n\n" % (ownIP[:ownIP.rfind('.')]+".4")
-				return reply
-		except:
-			pass
-		return reply
-
-	def dir(self, data):
-		""" emulate dir command """
-		reply = ""
-		try:
-			if data=="dir":
-				reply = "\nVolume in drive C has no label\n"
-				reply+= "Volume Serial Number is %i-FAB8\n\n" % (self.randomNumber)
-				reply+= "Directory of %s\n\n" % (self.prompt.strip('>'))
-				reply+= "06/11/2007  05:01p    <DIR>\t\t.\n"
-				reply+= "06/11/2007  05:01p    <DIR>\t\t..\n"
-				reply+= "               0 File(s)\t\t0 bytes\n"
-				reply+= "               2 Dir(s)\t1,627,193,344 bytes free\n\n"
-				return reply
-		except:
-			pass
-		return reply
 
 	def incoming(self, message, bytes, ip, vuLogger, random_reply, ownIP):
 		try:
@@ -157,26 +120,27 @@ class vuln:
 			#if bytes>0:
 				#self.log_obj.log("CHECK Incoming: %s (Bytes: %s)" % (message, bytes), 6, "debug", True, False)
 				#self.print_message(message)
-		
-			message = message.strip()
+		        
+		        shellemu = shellemulator.shellemulator(vuLogger)
+			(prompt,closeShell,reply) = shellemu.shellInterpreter(message)
+			
+			# ensure the prompt is fixed before the attcker exits
+			# 'cd' cannot be used for now since prompt will change if calling shellemulator (in work)
+			if self.prompt_flag:
+				self.prompt = prompt
+				self.prompt_flag = False
+				
 			if self.stage=="CHECK_STAGE1":
-				if message.startswith('ipconfig'):
+				if message.startswith('ipconfig') or message.startswith('dir') or message.startswith('net ') or message.startswith('netstat') or message.startswith('cd'):
 					resultSet['result'] = True
 					resultSet['accept'] = True
-					resultSet['reply'] = self.ipconfig(message, ownIP) + self.prompt
+					resultSet['reply'] = "%s%s" % (reply, self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
-				elif message.startswith('dir'):
-					resultSet['result'] = True
-					resultSet['accept'] = True
-					resultSet['reply'] = self.dir(message) + self.prompt
-					self.stage="CHECK_STAGE1"
-					return resultSet
-
 				elif message.rfind('exit')!=-1 or message.rfind('EXIT')!=-1:
 					resultSet['result'] = True
 					resultSet['accept'] = False
-					resultSet['reply'] = "command unknown\n\n" + self.prompt
+					resultSet['reply'] = "\'%s\' is not recognized as an internal or external command, \noperable program or batch file.\n\n%s" % (message, self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
 				else:
@@ -184,7 +148,8 @@ class vuln:
 						self.log_obj.log("CHECK (%s) Incoming: %s (Bytes: %s)" % (ip, message, bytes), 6, "debug", True, True)
 					resultSet['result'] = True
 					resultSet['accept'] = True
-					resultSet['reply'] = "command unknown\n\n" + self.prompt
+					message = message.strip()
+					resultSet['reply'] = "\'%s\' is not recognized as an internal or external command, \noperable program or batch file.\n\n%s" % (message, self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
 			elif self.stage=="SHELLCODE":
