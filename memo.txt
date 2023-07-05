@@ -1,0 +1,9 @@
+Week3-task-Change Telnet Shell to Windows Version
+
+versionA-call shellemulator
+	1. 'cd' command cannot use
+	2. cannot obtain ownIP, attackerIP, port (commands like 'ipconfig' must show such info)
+	3. logs to record attacks
+versionB-directly emulate Windows shell
+	1. finish the rest emulated commands in shellemulator
+	2. logs to record attacks
