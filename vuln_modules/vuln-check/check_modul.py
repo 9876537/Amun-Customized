@@ -36,6 +36,8 @@ class vuln:
 			self.vuln_name = "CHECK Vulnerability"
 			self.stage = "CHECK_STAGE1"
 			self.shellcode = []
+			self.randomNumber = random.randint(255,5100)
+			self.computerName = "DESKTOP-%i" % (self.randomNumber)
 			os_id = random.randint(0, 1)
 			if os_id == 0:
 				self.welcome_message = "Microsoft Windows XP [Version 5.1.2600]\n(C) Copyright 1985-2001 Microsoft Corp.\n\nC:\\WINNT\\System32>"
@@ -116,12 +118,11 @@ class vuln:
 
 	def dir(self, data):
 		""" emulate dir command """
-		randomNumber = random.randint(255,5100)
 		reply = ""
 		try:
 			if data=="dir":
 				reply = "\nVolume in drive C has no label\n"
-				reply+= "Volume Serial Number is %i-FAB8\n\n" % (randomNumber)
+				reply+= "Volume Serial Number is %i-FAB8\n\n" % (self.randomNumber)
 				reply+= "Directory of %s\n\n" % (self.prompt.strip('>'))
 				reply+= "06/11/2007  05:01p    <DIR>\t\t.\n"
 				reply+= "06/11/2007  05:01p    <DIR>\t\t..\n"
