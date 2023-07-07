@@ -4,6 +4,7 @@ versionA-call shellemulator
 	1. 'cd' command cannot use
 	2. cannot obtain ownIP, attackerIP, port (commands like 'ipconfig' must show such info)
 	3. logs to record attacks (log the commands into shellemulator.log???)
+	4. how to display the welcome message?
 versionB-directly emulate Windows shell
-	1. finish the rest emulated commands in shellemulator
+	1. finish netstat and cd
 	2. logs to record attacks (log the commands into shellemulator.log???)

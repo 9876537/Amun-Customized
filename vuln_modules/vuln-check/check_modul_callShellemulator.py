@@ -121,7 +121,7 @@ class vuln:
 				#self.log_obj.log("CHECK Incoming: %s (Bytes: %s)" % (message, bytes), 6, "debug", True, False)
 				#self.print_message(message)
 		        
-		        shellemu = shellemulator.shellemulator(vuLogger)
+		    shellemu = shellemulator.shellemulator(vuLogger)
 			(prompt,closeShell,reply) = shellemu.shellInterpreter(message)
 			
 			# ensure the prompt is fixed before the attcker exits

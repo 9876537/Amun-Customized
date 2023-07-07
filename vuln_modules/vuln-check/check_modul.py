@@ -36,8 +36,9 @@ class vuln:
 			self.vuln_name = "CHECK Vulnerability"
 			self.stage = "CHECK_STAGE1"
 			self.shellcode = []
-			self.randomNumber = random.randint(255,5100)
-			self.computerName = "DESKTOP-%i" % (self.randomNumber)
+			self.randomNumber_dir = random.randint(255,5100)
+			self.randomNumber_net = random.randint(255,5100)
+			self.computerName = "DESKTOP-%i" % (random.randint(255,5100))
 			os_id = random.randint(0, 1)
 			if os_id == 0:
 				self.welcome_message = "Microsoft Windows XP [Version 5.1.2600]\n(C) Copyright 1985-2001 Microsoft Corp.\n\nC:\\WINNT\\System32>"
@@ -122,12 +123,27 @@ class vuln:
 		try:
 			if data=="dir":
 				reply = "\nVolume in drive C has no label\n"
-				reply+= "Volume Serial Number is %i-FAB8\n\n" % (self.randomNumber)
+				reply+= "Volume Serial Number is %i-FAB8\n\n" % (self.randomNumber_dir)
 				reply+= "Directory of %s\n\n" % (self.prompt.strip('>'))
 				reply+= "06/11/2007  05:01p    <DIR>\t\t.\n"
 				reply+= "06/11/2007  05:01p    <DIR>\t\t..\n"
 				reply+= "               0 File(s)\t\t0 bytes\n"
 				reply+= "               2 Dir(s)\t1,627,193,344 bytes free\n\n"
+				return reply
+		except:
+			pass
+		return reply
+
+	def net(self, data):
+		""" emulate the net command """
+		reply = ""
+		try:
+			if data=="net user":
+				reply = "\nUser accounts for \\\\%s\n\n" % (self.computerName)
+				reply+= "--------------------------------------------------------------------------------\n"
+				reply+= "admin\t\t\tAdministrator\t\t\tGuest\n"
+				reply+= "HelpAssistant\t\tSUPPORT_%ia0\n" % (self.randomNumber_net)
+				reply+= "The command completed successfully\n\n"
 				return reply
 		except:
 			pass
@@ -170,6 +186,12 @@ class vuln:
 					resultSet['result'] = True
 					resultSet['accept'] = True
 					resultSet['reply'] = "%s%s" % (self.dir(message), self.prompt)
+					self.stage="CHECK_STAGE1"
+					return resultSet
+				elif message.startswith('net '):
+					resultSet['result'] = True
+					resultSet['accept'] = True
+					resultSet['reply'] = "%s%s" % (self.net(message), self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
 
