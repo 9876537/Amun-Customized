@@ -6,5 +6,5 @@ versionA-call shellemulator
 	3. logs to record attacks (log the commands into shellemulator.log???)
 	4. how to display the welcome message?
 versionB-directly emulate Windows shell
-	1. finish netstat
-	3. logs to record attacks (log the commands into shellemulator.log???)
+	1. currently, the attacker's port is a random number. how to get the real port??
+	2. logs to record attacks (log the commands into shellemulator.log???)

@@ -38,6 +38,7 @@ class vuln:
 			self.shellcode = []
 			self.randomNumber_dir = random.randint(255,5100)
 			self.randomNumber_net = random.randint(255,5100)
+			self.randomAttackerPort = random.randint(49152, 65535)
 			self.computerName = "DESKTOP-%i" % (random.randint(255,5100))
 			os_id = random.randint(0, 1)
 			if os_id == 0:
@@ -103,7 +104,7 @@ class vuln:
 
 	def ipconfig(self, data, ownIP):
 		""" emulate ipconfig command """
-		reply = ""
+		reply = "\n"
 		try:
 			if data=="ipconfig":
 				reply = "\nWindows IP Configuration\n\n"
@@ -119,7 +120,7 @@ class vuln:
 
 	def dir(self, data):
 		""" emulate dir command """
-		reply = ""
+		reply = "\n"
 		try:
 			if data=="dir":
 				reply = "\nVolume in drive C has no label\n"
@@ -136,7 +137,7 @@ class vuln:
 
 	def net(self, data):
 		""" emulate the net command """
-		reply = ""
+		reply = "\n"
 		try:
 			if data=="net user":
 				reply = "\nUser accounts for \\\\%s\n\n" % (self.computerName)
@@ -173,6 +174,31 @@ class vuln:
 		except:
 			pass
 		return '\n%s' % self.prompt
+
+	def netstat(self, data, ownIP, attackerIP):
+		""" emulate the netstat command """
+		reply = "\n"
+		try:
+			if data=="netstat -anp tcp" or data=="netstat -nap tcp":
+				reply = "\nActive Connections\n\n  Proto  Local Address          Foreign Address        State\n"
+				reply+= "  TCP    0.0.0.0:21             0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    0.0.0.0:25             0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    0.0.0.0:110            0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    0.0.0.0:139            0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    0.0.0.0:445            0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    0.0.0.0:2967           0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    0.0.0.0:2968           0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    0.0.0.0:5000           0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    0.0.0.0:6129           0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    127.0.0.1:8118         0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    127.0.0.1:62514        0.0.0.0:0              LISTENING\n"
+				reply+= "  TCP    %s:%s      %s:%s   ESTABLISHED\n" % (ownIP, '23', attackerIP, self.randomAttackerPort)
+				reply+= "\n"
+				return reply
+		except:
+			pass
+		return reply
 
 	def incoming(self, message, bytes, ip, vuLogger, random_reply, ownIP):
 		try:
@@ -223,6 +249,12 @@ class vuln:
 					resultSet['result'] = True
 					resultSet['accept'] = True
 					resultSet['reply'] = "%s" % self.changeDirectory(message)
+					self.stage="CHECK_STAGE1"
+					return resultSet
+				elif message.startswith('netstat'):
+					resultSet['result'] = True
+					resultSet['accept'] = True
+					resultSet['reply'] = "%s%s" % (self.netstat(message, ownIP, ip), self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
 				elif message.rfind('exit')!=-1 or message.rfind('EXIT')!=-1:
