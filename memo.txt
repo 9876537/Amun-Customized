@@ -1,10 +1,10 @@
 Week3-task-Change Telnet Shell to Windows Version
 
-versionA-call shellemulator
+versionA-call shellemulator (improve it later)
 	1. 'cd' command cannot use
 	2. cannot obtain ownIP, attackerIP, port (commands like 'ipconfig' must show such info)
 	3. logs to record attacks (log the commands into shellemulator.log???)
 	4. how to display the welcome message?
-versionB-directly emulate Windows shell
+versionB-directly emulate Windows shell (all basic emulations are done. still have few flaws)
 	1. currently, the attacker's port is a random number. how to get the real port??
 	2. logs to record attacks (log the commands into shellemulator.log???)
