@@ -149,6 +149,31 @@ class vuln:
 			pass
 		return reply
 
+	def changeDirectory(self, data):
+		""" emulate directory changing """
+		try:
+			if data=="cd ..":
+				data="cd.."
+			if data=="cd.." and self.prompt!="C:\\>":
+				position = self.prompt.rfind('\\')
+				newPrompt = self.prompt[:position]
+				if newPrompt=="C:":
+					newPrompt = "C:\\"
+				self.prompt = "%s>" % (newPrompt)
+			elif data=="cd\\":
+				self.prompt = "C:\\>"
+			elif data.startswith('cd '):
+				position = data.find(' ')
+				newdir = data[position+1:]
+				newPrompt = self.prompt[:-1]
+				if newPrompt[-1] == '\\':
+					self.prompt = "%s%s>" % (newPrompt,newdir)
+				else:
+					self.prompt = "%s\\%s>" % (newPrompt,newdir)
+		except:
+			pass
+		return '\n%s' % self.prompt
+
 	def incoming(self, message, bytes, ip, vuLogger, random_reply, ownIP):
 		try:
 			self.log_obj = amun_logging.amun_logging("vuln_check", vuLogger)
@@ -194,7 +219,12 @@ class vuln:
 					resultSet['reply'] = "%s%s" % (self.net(message), self.prompt)
 					self.stage="CHECK_STAGE1"
 					return resultSet
-
+				elif message.startswith('cd'):
+					resultSet['result'] = True
+					resultSet['accept'] = True
+					resultSet['reply'] = "%s" % self.changeDirectory(message)
+					self.stage="CHECK_STAGE1"
+					return resultSet
 				elif message.rfind('exit')!=-1 or message.rfind('EXIT')!=-1:
 					resultSet['result'] = True
 					resultSet['accept'] = False

@@ -637,7 +637,7 @@ class amun_reqhandler(asynchat.async_chat):
 							rplmess = "%s" % (vulnResult['reply'])
 						if vulnResult['reply'].endswith('*'):
 							rplmess = "%s" % (vulnResult['reply'][:-1])
-						if vulnResult['reply'].endswith('System32>'):
+						if vulnResult['reply'].endswith('>'): 
 							rplmess = "%s" % (vulnResult['reply'])
 						else:
 							rplmess = "%s\r\n" % (vulnResult['reply'])
