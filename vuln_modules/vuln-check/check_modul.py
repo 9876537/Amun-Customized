@@ -266,11 +266,18 @@ class vuln:
 				else:
 					if bytes>0:
 						self.log_obj.log("CHECK (%s) Incoming: %s (Bytes: %s)" % (ip, message, bytes), 6, "debug", True, True)
-					resultSet['result'] = True
-					resultSet['accept'] = True
-					resultSet['reply'] = "\'%s\' is not recognized as an internal or external command, \noperable program or batch file.\n\n%s" % (message, self.prompt)
-					self.stage="CHECK_STAGE1"
-					return resultSet
+					if bytes != 33:
+						resultSet['result'] = True
+						resultSet['accept'] = True
+						resultSet['reply'] = "\'%s\' is not recognized as an internal or external command, \noperable program or batch file.\n\n%s" % (message, self.prompt)
+						self.stage="CHECK_STAGE1"
+						return resultSet
+					# bytes == 33 it maybe mean did not specify port when directly using telnet 
+					else:
+						resultSet['result'] = True
+						resultSet['accept'] = True
+						self.stage="CHECK_STAGE1"
+						return resultSet
 			elif self.stage=="SHELLCODE":
 				if bytes>0:
 					print "CHECK Collecting Shellcode"
