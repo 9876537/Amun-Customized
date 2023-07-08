@@ -6,7 +6,7 @@ As for detailed information, please refers to https://github.com/zeroq/amun
 In this repository, I have made modifications and enhancements to the Amun Honeypot to improve its functionality and extend its capabilities.
 
 ## Features
-- add windows shell for emulated vulnerable Telnet service
+- change the emulated shell in vulnerable Telnet service to windows shell.
 -
 -
 -
