@@ -633,12 +633,10 @@ class amun_reqhandler(asynchat.async_chat):
 					#print "SHELLCODE --> %s" % len(vulnResult['shellcode'])
 					### if result true and we have a reply -> send reply
 					if vulnResult['result'] and vulnResult['reply']!="None":
-						if vulnResult['reply'].endswith('#'):
+						if vulnResult['reply'].endswith('#') or vulnResult['reply'].endswith('>'):
 							rplmess = "%s" % (vulnResult['reply'])
-						if vulnResult['reply'].endswith('*'):
+						elif vulnResult['reply'].endswith('*'):
 							rplmess = "%s" % (vulnResult['reply'][:-1])
-						if vulnResult['reply'].endswith('>'): 
-							rplmess = "%s" % (vulnResult['reply'])
 						else:
 							rplmess = "%s\r\n" % (vulnResult['reply'])
 						if rplmess not in result['replies']:
