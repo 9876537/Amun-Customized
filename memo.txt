@@ -8,3 +8,4 @@ versionA-call shellemulator (improve it later)
 versionB-directly emulate Windows shell (all basic emulations are done. still have few flaws)
 	1. currently, the attacker's port is a random number. how to get the real port??
 	2. logs to record attacks (log the commands into shellemulator.log???)
+	3. if the attacker machine uses telnet but does not specify the port, it has problems
